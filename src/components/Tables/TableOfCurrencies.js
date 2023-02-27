@@ -7,7 +7,7 @@ export function TableOfCurrencies({ data }) {
     <tr key={currency?.symbol}>
       <td>
         <Link
-          to="details"
+          to={`details/${currency?.symbol}`}
           style={{ color: "#008e5f", textDecoration: "none" }}
           state={{ name: currency?.symbol }}
         >

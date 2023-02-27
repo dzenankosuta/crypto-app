@@ -13,7 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />}></Route>
           <Route path="/favorites" element={<Favorites />}></Route>
-          <Route path="/details" element={<Details />}></Route>
+          <Route path="/details/:symbol" element={<Details />}></Route>
         </Routes>
       </main>
     </div>
