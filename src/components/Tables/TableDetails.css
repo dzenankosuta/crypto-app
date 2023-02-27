@@ -1,0 +1,23 @@
+.section {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.fav-btn {
+  margin-left: 10%;
+  width: 11rem;
+  height: 40px;
+  border-radius: 5px;
+  letter-spacing: 0.04rem;
+  cursor: pointer;
+}
+
+.add-btn {
+  background-color: #aaceec;
+  border: 1px solid #aaceec;
+}
+
+.remove-btn {
+  background-color: #f58a8a;
+  border: 1px solid #f58a8a;
+}

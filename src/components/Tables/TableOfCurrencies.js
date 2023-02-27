@@ -9,7 +9,7 @@ export function TableOfCurrencies({ data }) {
         <Link
           to="details"
           style={{ color: "#008e5f", textDecoration: "none" }}
-          state={{ name: currency?.symbol, allCurrencies: data }}
+          state={{ name: currency?.symbol }}
         >
           {currency?.symbol}
         </Link>
