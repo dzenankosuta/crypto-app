@@ -7,14 +7,7 @@ import { LoginContext } from "../context/LoginContext";
 // const API_URL = "https://api.bitfinex.com/v1/symbols";
 
 export default function HomePage() {
-  const { currencies, dataCurrencies } = useContext(LoginContext);
+  const { dataCurrencies } = useContext(LoginContext);
 
-  console.log(currencies);
-  console.log(dataCurrencies);
-
-  return (
-    <div>
-      <TableOfCurrencies data={dataCurrencies}></TableOfCurrencies>
-    </div>
-  );
+  return <TableOfCurrencies data={dataCurrencies}></TableOfCurrencies>;
 }

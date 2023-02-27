@@ -9,31 +9,33 @@ const LoginProvider = ({ children }) => {
 
   const [currencies, setCurrencies] = useState([]);
   const [dataCurrencies, setDataCurrencies] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
   const addToFavorites = (symbol) => {
-    setDataCurrencies((prev) =>
-      dataCurrencies.map((curr) => {
-        if (curr.symbol === symbol) {
-          curr.favorite = true;
-          return curr;
-        } else {
-          return curr;
-        }
-      })
-    );
+    setFavorites((prev) => [...prev, symbol]);
   };
 
   const removeFromFavorites = (symbol) => {
-    setDataCurrencies((prev) =>
-      dataCurrencies.map((curr) => {
-        if (curr.symbol === symbol) {
-          curr.favorite = false;
-          return curr;
-        } else {
-          return curr;
-        }
+    setFavorites((prev) => prev.filter((item) => item !== symbol));
+  };
+
+  const refreshCurrenciesData = () => {
+    const promises = [];
+    currencies.forEach((curr) => {
+      const resultForItem = fetch(`/api/pubticker/${curr}`);
+      promises.push(resultForItem);
+    });
+    Promise.all(promises)
+      .then((res) => {
+        return Promise.all(res.map((r) => r.json()));
       })
-    );
+      .then((data) => {
+        const currencyData = data.map((item, index) => ({
+          ...item,
+          symbol: currencies[index].toUpperCase(),
+        }));
+        setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
+      });
   };
 
   useLayoutEffect(() => {
@@ -45,8 +47,7 @@ const LoginProvider = ({ children }) => {
 
   useEffect(() => {
     wss.onopen = () => {
-      console.log("is open");
-      // API keys setup here (See "Authenticated Channels")
+      console.log("Socket connection is open");
       const apiKey = "hLH4a7Kk9rKMQcCWYx7cxv27Ol7xHW7wyeV0xqdkeIl";
       const apiSecret = "X4NxpR2HPEX8VhxcZYIJmhEPNgvQglvAZCMB1XEuaex";
       const authNonce = Date.now() * 1000;
@@ -65,42 +66,58 @@ const LoginProvider = ({ children }) => {
 
       wss.send(JSON.stringify(payload));
 
-      wss.onmessage = (msg) => console.log({ msg });
+      let topCurrencies = [];
 
       fetch("/api/symbols")
         .then((res) => {
           return res.json();
         })
         .then((data) => {
-          data.slice(0, 5).forEach((item) => {
-            wss.send(JSON.stringify({ event: "subscribe", channel: item }));
+          topCurrencies = data.slice(0, 5);
+
+          topCurrencies.forEach((item) => {
+            wss.send(
+              JSON.stringify({
+                event: "subscribe",
+                symbol: `t${item.toUpperCase()}`,
+                channel: "ticker",
+              })
+            );
           });
-          wss.addEventListener("message", (data) => {
-            console.log("Slusali smo ovo", JSON.parse(data.data));
-          });
-          const topCurrencies = data.slice(0, 5);
+
           setCurrencies(topCurrencies);
           const promises = [];
           topCurrencies.forEach((curr) => {
             const resultForItem = fetch(`/api/pubticker/${curr}`);
             promises.push(resultForItem);
           });
-          Promise.all(promises)
-            .then((res) => {
-              return Promise.all(res.map((r) => r.json()));
-            })
-            .then((data) => {
-              console.log({ data });
-              const currencyData = data.map((item, index) => ({
-                ...item,
-                symbol: topCurrencies[index].toUpperCase(),
-                favorite: false,
-              }));
-              setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
-            });
+          return Promise.all(promises);
+        })
+        .then((res) => {
+          return Promise.all(res.map((r) => r.json()));
+        })
+        .then((data) => {
+          const currencyData = data.map((item, index) => ({
+            ...item,
+            symbol: topCurrencies[index].toUpperCase(),
+          }));
+          setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
         });
     };
-  }, [currencies.length]);
+  }, []);
+
+  useEffect(() => {
+    if (currencies.length) {
+      wss.onmessage = (msg) => {
+        refreshCurrenciesData();
+        // For example I search for the way on changing some property to rendering just that currency.
+        // But on change I get something like this:
+        // [268054,23348,45.90767033,23349,38.79927478,-301,-0.01272727,23349,1906.93730734,23891,23131]
+        // I acually
+        console.log(msg.data);
+      };
+    }
+  }, [currencies]);
 
   const values = {
     token,
@@ -109,8 +126,8 @@ const LoginProvider = ({ children }) => {
     dataCurrencies,
     addToFavorites,
     removeFromFavorites,
+    favorites,
   };
-  console.log(dataCurrencies);
   return (
     <LoginContext.Provider value={values}>{children}</LoginContext.Provider>
   );

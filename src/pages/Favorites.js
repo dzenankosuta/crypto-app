@@ -3,13 +3,13 @@ import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
 import { LoginContext } from "../context/LoginContext";
 
 export default function Favorites() {
-  const { dataCurrencies } = useContext(LoginContext);
-  const favoriteCurrencies = dataCurrencies.filter(
-    (curr) => curr?.favorite === true
+  const { dataCurrencies, favorites } = useContext(LoginContext);
+  const favoriteCurrencies = dataCurrencies.filter((curr) =>
+    favorites.includes(curr?.symbol)
   );
 
   return (
-    <div>
+    <>
       {favoriteCurrencies.length ? (
         <TableOfCurrencies data={favoriteCurrencies}></TableOfCurrencies>
       ) : (
@@ -17,6 +17,6 @@ export default function Favorites() {
           You don't have any favorite currencies yet.
         </h2>
       )}
-    </div>
+    </>
   );
 }

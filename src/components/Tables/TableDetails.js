@@ -5,13 +5,19 @@ import "./TableDetails.css";
 import { LoginContext } from "../../context/LoginContext";
 
 export default function TableDetails() {
-  const { token, dataCurrencies, addToFavorites, removeFromFavorites } =
-    useContext(LoginContext);
+  const {
+    token,
+    dataCurrencies,
+    addToFavorites,
+    removeFromFavorites,
+    favorites,
+  } = useContext(LoginContext);
   let { symbol } = useParams();
   const currency = dataCurrencies?.find((curr) => curr?.symbol === symbol);
+  const isFavorite = favorites.includes(currency?.symbol);
   const btnVisibility = !token ? "none" : "flex";
-  const btnBack = currency?.favorite ? "remove-btn" : "add-btn";
-  const changeFav = currency?.favorite ? removeFromFavorites : addToFavorites;
+  const btnBack = isFavorite ? "remove-btn" : "add-btn";
+  const changeFav = isFavorite ? removeFromFavorites : addToFavorites;
   return (
     <div>
       <Table
@@ -43,7 +49,7 @@ export default function TableDetails() {
           className={`fav-btn ${btnBack}`}
           onClick={() => changeFav(currency?.symbol)}
         >
-          {currency?.favorite ? (
+          {isFavorite ? (
             <span>Remove from Favorites</span>
           ) : (
             <span>Add to favorites</span>
