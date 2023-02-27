@@ -1,56 +1,65 @@
-import axios from "axios";
-import React, { useEffect } from "react";
+// import axios from "axios";
+import React, { useEffect, useState } from "react";
 const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/2");
 // const httpsProxyAgent = require("https-proxy-agent");
+const crypto = require("crypto-js");
 
-const CORS_PROXY_URL = "https://cors-anywhere.herokuapp.com/";
-const API_URL = "https://api.bitfinex.com/v1/symbols";
+// const CORS_PROXY_URL = "https://cors-anywhere.herokuapp.com/";
+// const API_URL = "https://api.bitfinex.com/v1/symbols";
 
 export default function HomePage() {
-  //   const proxyUrl = "http://localhost:3000";
-  //   const proxyAgent = new httpsProxyAgent(proxyUrl);
-
-  //   const axiosInstance = axios.create({
-  //     baseURL: "https://api.bitfinex.com/v1",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     httpsAgent: proxyAgent,
-  //   });
+  const [currencies, setCurrencies] = useState([]);
+  const [dataCurrencies, setDataCurrencies] = useState([]);
   useEffect(() => {
-    wss.onmessage = (msg) => console.log(msg.data);
+    // wss.onmessage = (msg) => console.log(msg.data);
     wss.onopen = () => {
       console.log("is open");
       // API keys setup here (See "Authenticated Channels")
+      const apiKey = "hLH4a7Kk9rKMQcCWYx7cxv27Ol7xHW7wyeV0xqdkeIl";
+      const apiSecret = "X4NxpR2HPEX8VhxcZYIJmhEPNgvQglvAZCMB1XEuaex";
+      const authNonce = Date.now() * 1000;
+      const authPayload = "AUTH" + authNonce;
+      const authSig = crypto
+        .HmacSHA384(authPayload, apiSecret)
+        .toString(crypto.enc.Hex);
+
+      const payload = {
+        apiKey,
+        authSig,
+        authNonce,
+        authPayload,
+        event: "auth",
+      };
+
+      wss.send(JSON.stringify(payload));
     };
-  }, []);
-
-  useEffect(() => {
-    // axiosInstance
-    //   .get("/symbols")
-    //   .then((res) => {
-    //     const currencies = res.slice(0, 5).map((c) => ({
-    //       event: "subscribe",
-    //       channel: c,
-    //     }));
-    //     currencies.forEach((item) => {
-    //       wss.send(JSON.stringify(item));
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
-
-    axios.get(CORS_PROXY_URL + API_URL).then((res) => {
-      const currencies = res.slice(0, 5).map((c) => ({
-        event: "subscribe",
-        channel: c,
-      }));
-      currencies.forEach((item) => {
-        wss.send(JSON.stringify(item));
+    fetch("/api/symbols")
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        data.slice(0, 5).forEach((item) => {
+          wss.send(JSON.stringify({ event: "subscribe", channel: item }));
+        });
+        // console.log(data);
+        setCurrencies(data.slice(0, 5));
       });
+
+    currencies.forEach((curr) => {
+      fetch(`/api/pubticker/${curr}`)
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          data.symbol = curr.toUpperCase();
+          setDataCurrencies((prev) => [...prev, data]);
+          // console.log(data);
+        });
     });
-  }, []);
+  }, [currencies.length]);
+
+  console.log(currencies);
+  console.log(dataCurrencies);
 
   return <div>HomePage</div>;
 }
