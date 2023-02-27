@@ -1,5 +1,6 @@
 // import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
 const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/2");
 // const httpsProxyAgent = require("https-proxy-agent");
 const crypto = require("crypto-js");
@@ -60,6 +61,10 @@ export default function HomePage() {
 
   console.log(currencies);
   console.log(dataCurrencies);
-
-  return <div>HomePage</div>;
+  dataCurrencies.sort((a, b) => b.high - a.high);
+  return (
+    <div>
+      <TableOfCurrencies data={dataCurrencies}></TableOfCurrencies>
+    </div>
+  );
 }

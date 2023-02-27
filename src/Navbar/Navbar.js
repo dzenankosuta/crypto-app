@@ -10,11 +10,6 @@ export default function Navbar() {
 
   return (
     <div className="header">
-      {/* <img
-        src="https://i.postimg.cc/8P0LjnXR/logo-removebg-preview.png"
-        className="logo"
-        alt="Coins Logo"
-      /> */}
       <NavLink
         className={({ isActive }) => (isActive ? "link-active" : "link")}
         to="/"
@@ -27,13 +22,6 @@ export default function Navbar() {
         to="/favorites"
       >
         Favorites
-      </NavLink>
-      <NavLink
-        className={({ isActive }) => (isActive ? "link-active" : "link")}
-        style={{ display: oppositeVisibility }}
-        to="/details"
-      >
-        Details
       </NavLink>
       <button
         className="login-btn"
