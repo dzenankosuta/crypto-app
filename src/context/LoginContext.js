@@ -1,5 +1,5 @@
 import { createContext, useEffect, useLayoutEffect, useState } from "react";
-const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/2");
+const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/20061");
 const crypto = require("crypto-js");
 
 const LoginContext = createContext();
@@ -44,7 +44,6 @@ const LoginProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // wss.onmessage = (msg) => console.log(msg.data);
     wss.onopen = () => {
       console.log("is open");
       // API keys setup here (See "Authenticated Channels")
@@ -65,32 +64,42 @@ const LoginProvider = ({ children }) => {
       };
 
       wss.send(JSON.stringify(payload));
-    };
-    fetch("/api/symbols")
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => {
-        data.slice(0, 5).forEach((item) => {
-          wss.send(JSON.stringify({ event: "subscribe", channel: item }));
-        });
-        // console.log(data);
-        setCurrencies(data.slice(0, 5));
-      });
 
-    currencies.forEach((curr) => {
-      fetch(`/api/pubticker/${curr}`)
+      wss.onmessage = (msg) => console.log({ msg });
+
+      fetch("/api/symbols")
         .then((res) => {
           return res.json();
         })
         .then((data) => {
-          data.symbol = curr.toUpperCase();
-          data.favorite = false;
-          setDataCurrencies((prev) => [...prev, data]);
-          // console.log(data);
+          data.slice(0, 5).forEach((item) => {
+            wss.send(JSON.stringify({ event: "subscribe", channel: item }));
+          });
+          wss.addEventListener("message", (data) => {
+            console.log("Slusali smo ovo", JSON.parse(data.data));
+          });
+          const topCurrencies = data.slice(0, 5);
+          setCurrencies(topCurrencies);
+          const promises = [];
+          topCurrencies.forEach((curr) => {
+            const resultForItem = fetch(`/api/pubticker/${curr}`);
+            promises.push(resultForItem);
+          });
+          Promise.all(promises)
+            .then((res) => {
+              return Promise.all(res.map((r) => r.json()));
+            })
+            .then((data) => {
+              console.log({ data });
+              const currencyData = data.map((item, index) => ({
+                ...item,
+                symbol: topCurrencies[index].toUpperCase(),
+                favorite: false,
+              }));
+              setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
+            });
         });
-    });
-    dataCurrencies.sort((a, b) => b.high - a.high);
+    };
   }, [currencies.length]);
 
   const values = {
