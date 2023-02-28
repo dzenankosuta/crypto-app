@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { Table } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import "./TableDetails.css";
-import { LoginContext } from "../../context/LoginContext";
+import { ApplicationContext } from "../../context/ApplicationContext";
 
 export default function TableDetails() {
   const {
@@ -11,7 +11,7 @@ export default function TableDetails() {
     addToFavorites,
     removeFromFavorites,
     favorites,
-  } = useContext(LoginContext);
+  } = useContext(ApplicationContext);
   let { symbol } = useParams();
   const currency = dataCurrencies?.find((curr) => curr?.symbol === symbol);
   const [currencyToShow] = useState({ ...currency });

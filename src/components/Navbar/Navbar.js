@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./Navbar.css";
-import { ApplicationContext } from "../context/ApplicationContext";
+import { ApplicationContext } from "../../context/ApplicationContext";
 import { NavLink } from "react-router-dom";
 
 export default function Navbar() {

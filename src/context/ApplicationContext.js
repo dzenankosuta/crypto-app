@@ -4,9 +4,9 @@ import axios from "axios";
 const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/20061");
 const crypto = require("crypto-js");
 
-const LoginContext = createContext();
+const ApplicationContext = createContext();
 
-const LoginProvider = ({ children }) => {
+const ApplicationProvider = ({ children }) => {
   const [token, setToken] = useState(null);
 
   const [currencies, setCurrencies] = useState([]);
@@ -152,8 +152,10 @@ const LoginProvider = ({ children }) => {
     favorites,
   };
   return (
-    <LoginContext.Provider value={values}>{children}</LoginContext.Provider>
+    <ApplicationContext.Provider value={values}>
+      {children}
+    </ApplicationContext.Provider>
   );
 };
 
-export { LoginContext, LoginProvider };
+export { ApplicationContext, ApplicationProvider };

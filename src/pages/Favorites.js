@@ -1,9 +1,9 @@
 import React, { useContext } from "react";
 import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
-import { LoginContext } from "../context/LoginContext";
+import { ApplicationContext } from "../context/ApplicationContext";
 
 export default function Favorites() {
-  const { dataCurrencies, favorites } = useContext(LoginContext);
+  const { dataCurrencies, favorites } = useContext(ApplicationContext);
   let favoriteCurrencies = [];
   if (favorites) {
     favoriteCurrencies = dataCurrencies.filter((curr) =>
