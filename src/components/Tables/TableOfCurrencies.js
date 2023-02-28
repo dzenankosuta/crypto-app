@@ -8,7 +8,11 @@ export function TableOfCurrencies({ data }) {
       <td>
         <Link
           to={`../details/${currency?.symbol}`}
-          style={{ color: "#008e5f", textDecoration: "none" }}
+          style={{
+            color: "#202A44",
+            textDecoration: "none",
+            fontWeight: "500",
+          }}
           state={{ name: currency?.symbol }}
         >
           {currency?.symbol}
@@ -16,7 +20,7 @@ export function TableOfCurrencies({ data }) {
       </td>
       <td>{currency?.last_price}</td>
       <td>{currency?.volume}</td>
-      <td>{currency?.symbol}</td>
+      <td>{+(currency?.volume / currency?.high).toFixed(2)}</td>
       <td>{currency?.high}</td>
       <td>{currency?.low}</td>
     </tr>
@@ -28,16 +32,16 @@ export function TableOfCurrencies({ data }) {
       striped
       withBorder
       withColumnBorders
-      style={{ margin: "50px auto 10px", width: "85%" }}
+      style={{ margin: "50px auto 10px", width: "86%" }}
     >
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Last</th>
-          <th>Change</th>
-          <th>Change Percent</th>
-          <th>High</th>
-          <th>Low</th>
+          <th style={{ textAlign: "center" }}>Name</th>
+          <th style={{ textAlign: "center" }}>Last</th>
+          <th style={{ textAlign: "center" }}>Change</th>
+          <th style={{ textAlign: "center" }}>Change Percent</th>
+          <th style={{ textAlign: "center" }}>High</th>
+          <th style={{ textAlign: "center" }}>Low</th>
         </tr>
       </thead>
       <tbody>{rows}</tbody>

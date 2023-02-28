@@ -5,15 +5,12 @@ import "./TableDetails.css";
 import { LoginContext } from "../../context/LoginContext";
 
 export default function TableDetails() {
-  const {
-    token,
-    dataCurrencies,
-    addToFavorites,
-    removeFromFavorites,
-    favorites,
-  } = useContext(LoginContext);
+  const { token, dataCurrencies, addToFavorites, removeFromFavorites } =
+    useContext(LoginContext);
   let { symbol } = useParams();
   const currency = dataCurrencies?.find((curr) => curr?.symbol === symbol);
+  const currencyToShow = { ...currency };
+  const favorites = JSON.parse(localStorage.getItem("favorites"));
   const isFavorite = favorites.includes(currency?.symbol);
   const btnVisibility = !token ? "none" : "flex";
   const btnBack = isFavorite ? "remove-btn" : "add-btn";
@@ -25,7 +22,7 @@ export default function TableDetails() {
         striped
         withBorder
         withColumnBorders
-        style={{ margin: "50px auto 10px", width: "80%" }}
+        style={{ margin: "50px auto 10px", width: "86%" }}
       >
         <thead>
           <tr>
@@ -37,10 +34,10 @@ export default function TableDetails() {
         </thead>
         <tbody>
           <tr>
-            <td>{currency?.symbol}</td>
-            <td>{currency?.last_price}</td>
-            <td>{currency?.high}</td>
-            <td>{currency?.low}</td>
+            <td>{currencyToShow?.symbol}</td>
+            <td>{currencyToShow?.last_price}</td>
+            <td>{currencyToShow?.high}</td>
+            <td>{currencyToShow?.low}</td>
           </tr>
         </tbody>
       </Table>
