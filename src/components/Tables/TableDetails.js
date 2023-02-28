@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Table } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import "./TableDetails.css";
@@ -9,7 +9,7 @@ export default function TableDetails() {
     useContext(LoginContext);
   let { symbol } = useParams();
   const currency = dataCurrencies?.find((curr) => curr?.symbol === symbol);
-  const currencyToShow = { ...currency };
+  const [currencyToShow] = useState({ ...currency });
   const favorites = JSON.parse(localStorage.getItem("favorites"));
   const isFavorite = favorites.includes(currency?.symbol);
   const btnVisibility = !token ? "none" : "flex";
