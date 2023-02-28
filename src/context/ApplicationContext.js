@@ -8,7 +8,7 @@ const ApplicationContext = createContext();
 
 const ApplicationProvider = ({ children }) => {
   const [token, setToken] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(true);
   const [currencies, setCurrencies] = useState([]);
   const [dataCurrencies, setDataCurrencies] = useState([]);
   const [favorites, setFavorites] = useState([]);
@@ -93,6 +93,9 @@ const ApplicationProvider = ({ children }) => {
             symbol: topCurrencies[index].toUpperCase(),
           }));
           setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     };
   }, [currencies.length]);
@@ -150,6 +153,7 @@ const ApplicationProvider = ({ children }) => {
     addToFavorites,
     removeFromFavorites,
     favorites,
+    isLoading,
   };
   return (
     <ApplicationContext.Provider value={values}>

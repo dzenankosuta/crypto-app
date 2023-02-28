@@ -20,11 +20,11 @@ export function TableOfCurrencies({ data }) {
             {currency?.symbol}
           </Link>
         </td>
-        <td>{currency?.last_price}</td>
-        <td>{change}</td>
+        <td>{currency?.last_price.toLocaleString()}</td>
+        <td>{change.toLocaleString()}</td>
         <td>{changePercent.toFixed(2)}%</td>
-        <td>{currency?.high}</td>
-        <td>{currency?.low}</td>
+        <td>{currency?.high.toLocaleString()}</td>
+        <td>{currency?.low.toLocaleString()}</td>
       </tr>
     );
   });

@@ -3,12 +3,16 @@ import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
 import { ApplicationContext } from "../context/ApplicationContext";
 
 export default function Favorites() {
-  const { dataCurrencies, favorites } = useContext(ApplicationContext);
+  const { dataCurrencies, favorites, isLoading } =
+    useContext(ApplicationContext);
   let favoriteCurrencies = [];
   if (favorites) {
     favoriteCurrencies = dataCurrencies.filter((curr) =>
       favorites.includes(curr?.symbol)
     );
+  }
+  if (isLoading) {
+    return <h3 style={{ margin: "100px auto" }}>Loading...</h3>;
   }
   return (
     <>

@@ -3,7 +3,11 @@ import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
 import { ApplicationContext } from "../context/ApplicationContext";
 
 export default function HomePage() {
-  const { dataCurrencies } = useContext(ApplicationContext);
+  const { dataCurrencies, isLoading } = useContext(ApplicationContext);
+
+  if (isLoading) {
+    return <h3 style={{ margin: "100px auto" }}>Loading...</h3>;
+  }
 
   return <TableOfCurrencies data={dataCurrencies}></TableOfCurrencies>;
 }
