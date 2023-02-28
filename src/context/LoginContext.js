@@ -10,32 +10,19 @@ const LoginProvider = ({ children }) => {
   const [currencies, setCurrencies] = useState([]);
   const [dataCurrencies, setDataCurrencies] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [currencyPairsData, setCurrencyPairsData] = useState([]);
 
   const addToFavorites = (symbol) => {
     setFavorites((prev) => [...prev, symbol]);
+    localStorage.setItem("favorites", JSON.stringify([...favorites, symbol]));
   };
 
   const removeFromFavorites = (symbol) => {
     setFavorites((prev) => prev.filter((item) => item !== symbol));
-  };
-
-  const refreshCurrenciesData = () => {
-    const promises = [];
-    currencies.forEach((curr) => {
-      const resultForItem = fetch(`/api/pubticker/${curr}`);
-      promises.push(resultForItem);
-    });
-    Promise.all(promises)
-      .then((res) => {
-        return Promise.all(res.map((r) => r.json()));
-      })
-      .then((data) => {
-        const currencyData = data.map((item, index) => ({
-          ...item,
-          symbol: currencies[index].toUpperCase(),
-        }));
-        setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
-      });
+    localStorage.setItem(
+      "favorites",
+      JSON.stringify(favorites.filter((fav) => fav !== symbol))
+    );
   };
 
   useLayoutEffect(() => {
@@ -104,20 +91,52 @@ const LoginProvider = ({ children }) => {
           setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
         });
     };
-  }, []);
+  }, [currencies.length]);
 
   useEffect(() => {
-    if (currencies.length) {
-      wss.onmessage = (msg) => {
-        refreshCurrenciesData();
-        // For example I search for the way on changing some property to rendering just that currency.
-        // But on change I get something like this:
-        // [268054,23348,45.90767033,23349,38.79927478,-301,-0.01272727,23349,1906.93730734,23891,23131]
-        // I acually
-        console.log(msg.data);
-      };
-    }
-  }, [currencies]);
+    wss.onmessage = (msg) => {
+      const data = JSON.parse(msg.data);
+      if (Array.isArray(data)) {
+        if (data[0] !== 0 && !data.includes("hb")) {
+          const pairData = currencyPairsData.find(
+            (item) => item.id === data[0]
+          );
+
+          if (!pairData) {
+            return null;
+          }
+
+          const newData = {
+            mid: (data[9] + data[10]) / 2,
+            bid: data[1],
+            ask: data[3],
+            last_price: data[7],
+            low: data[10],
+            high: data[9],
+            volume: data[8],
+            timestamp: `${new Date().getTime()}`,
+            symbol: pairData.symbol,
+          };
+
+          setDataCurrencies((prev) =>
+            prev.map((item) => {
+              if (item.symbol === pairData.symbol) {
+                return newData;
+              }
+              return item;
+            })
+          );
+        }
+      } else if (typeof data === "object") {
+        if (data.event === "subscribed") {
+          setCurrencyPairsData((prev) => [
+            ...prev,
+            { symbol: data.pair.toUpperCase(), id: data.chanId },
+          ]);
+        }
+      }
+    };
+  }, [currencyPairsData]);
 
   const values = {
     token,
