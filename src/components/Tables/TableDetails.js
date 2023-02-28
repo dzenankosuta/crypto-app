@@ -5,12 +5,16 @@ import "./TableDetails.css";
 import { LoginContext } from "../../context/LoginContext";
 
 export default function TableDetails() {
-  const { token, dataCurrencies, addToFavorites, removeFromFavorites } =
-    useContext(LoginContext);
+  const {
+    token,
+    dataCurrencies,
+    addToFavorites,
+    removeFromFavorites,
+    favorites,
+  } = useContext(LoginContext);
   let { symbol } = useParams();
   const currency = dataCurrencies?.find((curr) => curr?.symbol === symbol);
   const [currencyToShow] = useState({ ...currency });
-  const favorites = JSON.parse(localStorage.getItem("favorites"));
   const isFavorite = favorites.includes(currency?.symbol);
   const btnVisibility = !token ? "none" : "flex";
   const btnBack = isFavorite ? "remove-btn" : "add-btn";

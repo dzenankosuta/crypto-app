@@ -1,4 +1,6 @@
 import { createContext, useEffect, useLayoutEffect, useState } from "react";
+import axios from "axios";
+
 const wss = new WebSocket("wss://api-pub.bitfinex.com/ws/20061");
 const crypto = require("crypto-js");
 
@@ -11,6 +13,13 @@ const LoginProvider = ({ children }) => {
   const [dataCurrencies, setDataCurrencies] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [currencyPairsData, setCurrencyPairsData] = useState([]);
+
+  useEffect(() => {
+    const favoritesFromStorage = localStorage.getItem("favorites");
+    if (favoritesFromStorage) {
+      setFavorites(JSON.parse(favoritesFromStorage));
+    }
+  }, []);
 
   const addToFavorites = (symbol) => {
     setFavorites((prev) => [...prev, symbol]);
@@ -55,11 +64,9 @@ const LoginProvider = ({ children }) => {
 
       let topCurrencies = [];
 
-      fetch("/api/symbols")
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
+      axios
+        .get("/api/symbols")
+        .then(({ data }) => {
           topCurrencies = data.slice(0, 5);
 
           topCurrencies.forEach((item) => {
@@ -75,17 +82,14 @@ const LoginProvider = ({ children }) => {
           setCurrencies(topCurrencies);
           const promises = [];
           topCurrencies.forEach((curr) => {
-            const resultForItem = fetch(`/api/pubticker/${curr}`);
+            const resultForItem = axios.get(`/api/pubticker/${curr}`);
             promises.push(resultForItem);
           });
           return Promise.all(promises);
         })
-        .then((res) => {
-          return Promise.all(res.map((r) => r.json()));
-        })
         .then((data) => {
-          const currencyData = data.map((item, index) => ({
-            ...item,
+          const currencyData = data.map(({ data }, index) => ({
+            ...data,
             symbol: topCurrencies[index].toUpperCase(),
           }));
           setDataCurrencies(currencyData.sort((a, b) => b.high - a.high));
@@ -107,7 +111,7 @@ const LoginProvider = ({ children }) => {
           }
 
           const newData = {
-            mid: (data[9] + data[10]) / 2,
+            mid: (data[1] + data[3]) / 2,
             bid: data[1],
             ask: data[3],
             last_price: data[7],

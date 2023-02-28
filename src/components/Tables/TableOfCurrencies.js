@@ -3,28 +3,31 @@ import { Table } from "@mantine/core";
 import { Link } from "react-router-dom";
 
 export function TableOfCurrencies({ data }) {
-  const rows = data.map((currency) => (
-    <tr key={currency?.symbol}>
-      <td>
-        <Link
-          to={`../details/${currency?.symbol}`}
-          style={{
-            color: "#202A44",
-            textDecoration: "none",
-            fontWeight: "500",
-          }}
-          state={{ name: currency?.symbol }}
-        >
-          {currency?.symbol}
-        </Link>
-      </td>
-      <td>{currency?.last_price}</td>
-      <td>{currency?.volume}</td>
-      <td>{+(currency?.volume / currency?.high).toFixed(2)}</td>
-      <td>{currency?.high}</td>
-      <td>{currency?.low}</td>
-    </tr>
-  ));
+  const rows = data.map((currency) => {
+    const change = currency?.mid - currency?.last_price;
+    const changePercent = (change / currency?.last_price) * 100;
+    return (
+      <tr key={currency?.symbol}>
+        <td>
+          <Link
+            to={`/details/${currency?.symbol}`}
+            style={{
+              color: "#202A44",
+              textDecoration: "none",
+              fontWeight: "500",
+            }}
+          >
+            {currency?.symbol}
+          </Link>
+        </td>
+        <td>{currency?.last_price}</td>
+        <td>{change}</td>
+        <td>{changePercent.toFixed(2)}%</td>
+        <td>{currency?.high}</td>
+        <td>{currency?.low}</td>
+      </tr>
+    );
+  });
 
   return (
     <Table

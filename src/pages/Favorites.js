@@ -3,8 +3,7 @@ import { TableOfCurrencies } from "../components/Tables/TableOfCurrencies";
 import { LoginContext } from "../context/LoginContext";
 
 export default function Favorites() {
-  const { dataCurrencies } = useContext(LoginContext);
-  const favorites = JSON.parse(localStorage.getItem("favorites"));
+  const { dataCurrencies, favorites } = useContext(LoginContext);
   let favoriteCurrencies = [];
   if (favorites) {
     favoriteCurrencies = dataCurrencies.filter((curr) =>
