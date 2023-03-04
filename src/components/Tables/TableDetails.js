@@ -39,9 +39,9 @@ export default function TableDetails() {
         <tbody>
           <tr>
             <td>{currencyToShow?.symbol}</td>
-            <td>{currencyToShow?.last_price}</td>
-            <td>{currencyToShow?.high}</td>
-            <td>{currencyToShow?.low}</td>
+            <td>{currencyToShow?.last_price.toLocaleString()}</td>
+            <td>{currencyToShow?.high.toLocaleString()}</td>
+            <td>{currencyToShow?.low.toLocaleString()}</td>
           </tr>
         </tbody>
       </Table>
